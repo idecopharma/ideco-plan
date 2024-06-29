@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KẾ HOẠCH LÀM VIỆC TUẦN - IDECO</title>
+    <title>KẾ HOẠCH LÀM VIỆC - IDECO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -68,7 +68,7 @@
         button:hover {
             background-color: #45a049;
         }
-        input[type="text"], input[type="date"], textarea {
+        input[type="text"], input[type="date"], input[type="number"], textarea {
             width: 100%;
             padding: 8px;
             margin: 5px 0;
@@ -93,7 +93,7 @@
         .color-selector {
             margin: 10px 0;
         }
-        #homePage, #planPage {
+        #homePage, #monthPlanPage, #weekPlanPage, #monthListPage, #weekListPage {
             display: none;
         }
         .note-popup {
@@ -122,21 +122,28 @@
             cursor: col-resize;
             background-color: #ddd;
         }
-		.note {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #fff3cd;
-    border: 1px solid #ffeeba;
-    border-radius: 4px;
-    color: #856404;
-}
+        .note {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            color: #856404;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div id="homePage">
-            <h1>DANH SÁCH BẢNG KẾ HOẠCH</h1>
-            <table id="planList">
+            <h1>KẾ HOẠCH LÀM VIỆC - IDECO</h1>
+            <button onclick="showMonthListPage()">Danh sách kế hoạch tháng</button>
+            <button onclick="showWeekListPage()">Danh sách kế hoạch tuần</button>
+            <button onclick="showWeekPlanPage('new')">Lập kế hoạch tuần mới</button>
+        </div>
+
+        <div id="monthListPage">
+            <h1>DANH SÁCH KẾ HOẠCH THÁNG</h1>
+            <table id="monthPlanList">
                 <tr>
                     <th>Tên người lập</th>
                     <th>Bộ phận</th>
@@ -144,38 +151,95 @@
                     <th>Hành động</th>
                 </tr>
             </table>
-            <button onclick="showPlanPage('new')">Tạo kế hoạch mới</button>
+            <button onclick="showMonthPlanPage('new')">Tạo kế hoạch tháng mới</button>
+            <button onclick="showHomePage()">Quay lại trang chủ</button>
         </div>
 
-        <div id="planPage">
-            <h1>Kế hoạch tuần làm việc - IDECO</h1>
+        <div id="weekListPage">
+            <h1>DANH SÁCH KẾ HOẠCH TUẦN</h1>
+            <table id="weekPlanList">
+                <tr>
+                    <th>Tên người lập</th>
+                    <th>Bộ phận</th>
+                    <th>Ngày lập</th>
+                    <th>Tuần</th>
+                    <th>Hành động</th>
+                </tr>
+            </table>
+            <button onclick="showHomePage()">Quay lại trang chủ</button>
+        </div>
+
+        <div id="monthPlanPage">
+            <h1>KẾ HOẠCH THÁNG - IDECO</h1>
             
             <div class="user-info">
-                <input type="text" id="name" placeholder="Tên người lập" required>
-                <input type="text" id="department" placeholder="Bộ phận" required>
-                <input type="date" id="date" required>
+                <input type="text" id="monthName" placeholder="Tên người lập" required>
+                <input type="text" id="monthDepartment" placeholder="Bộ phận" required>
+                <input type="date" id="monthDate" required>
             </div>
 
-            <h2>Mục tiêu công việc trong tuần</h2>
-            <textarea id="goals" rows="4"></textarea>
+            <h2>Mục tiêu công việc trong tháng (cụ thể, rõ ràng và theo KPI)</h2>
+            <textarea id="monthGoals" rows="4"></textarea>
            
             <div class="color-selector">
                 <label>Chọn mức độ ưu tiên: </label>
-                <input type="radio" id="color-red" name="color" value="red" checked>
-                <label for="color-red">Ưu tiên 1 (Đỏ)</label>
-                <input type="radio" id="color-blue" name="color" value="blue">
-                <label for="color-blue">Ưu tiên 2 (Xanh đậm)</label>
-                <input type="radio" id="color-yellow" name="color" value="yellow">
-                <label for="color-yellow">Ưu tiên 3 (Vàng)</label>
-				><strong>Lưu ý:</strong> Tất cả bảng kế hoạch phải gởi file qua email baocaoideco@gmail.com để xem như cùng theo dõi (vì ứng dụng chỉ lưu trên máy tính của người dùng)</p>
+                <input type="radio" id="month-color-red" name="month-color" value="red" checked>
+                <label for="month-color-red">Ưu tiên 1 (Đỏ)</label>
+                <input type="radio" id="month-color-blue" name="month-color" value="blue">
+                <label for="month-color-blue">Ưu tiên 2 (Xanh đậm)</label>
+                <input type="radio" id="month-color-yellow" name="month-color" value="yellow">
+                <label for="month-color-yellow">Ưu tiên 3 (Vàng)</label>
             </div>
-            <button onclick="addTask()">Thêm công việc</button>
-            <button onclick="saveData()">Lưu dữ liệu</button>
-            <button onclick="showHomePage()">Quay lại Danh sách</button>
-            <button onclick="exportToPDF()">Bấm tải PDF thay cho lưu nội dung</button>
-            <button onclick="sendEmail()">Hãy gởi email đính kèm file PDF xem như đã xong</button>
+            <button onclick="addMonthTask()">Thêm công việc</button>
+            <button onclick="saveMonthData()">Lưu dữ liệu</button>
+            <button onclick="showMonthListPage()">Quay lại Danh sách</button>
+            <button onclick="exportMonthToPDF()">Tải PDF</button>
+            <button onclick="sendMonthEmail()">Gởi email</button>
             <div class="schedule-container">
-                <table id="schedule">
+                <table id="monthSchedule">
+                    <tr>
+                        <th>Công việc<div class="resize-handle"></div></th>
+                        <th>TUẦN 1<div class="resize-handle"></div></th>
+                        <th>TUẦN 2<div class="resize-handle"></div></th>
+                        <th>TUẦN 3<div class="resize-handle"></div></th>
+                        <th>TUẦN 4<div class="resize-handle"></div></th>
+                        <th>Nêu phân tích/ kết quả đạt<div class="resize-handle"></div></th>
+                        <th>Xác nhận hoàn thành<div class="resize-handle"></div></th>
+                        <th>Xóa</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div id="weekPlanPage">
+            <h1>KẾ HOẠCH TUẦN - IDECO</h1>
+            
+            <div class="user-info">
+                <input type="text" id="weekName" placeholder="Tên người lập" required>
+                <input type="text" id="weekDepartment" placeholder="Bộ phận" required>
+                <input type="date" id="weekDate" required>
+                <input type="number" id="weekNumber" placeholder="Số tuần" min="1" max="4" required>
+            </div>
+
+            <h2>Mục tiêu công việc trong tuần (cụ thể, rõ ràng và theo KPI)</h2>
+            <textarea id="weekGoals" rows="4"></textarea>
+           
+            <div class="color-selector">
+                <label>Chọn mức độ ưu tiên: </label>
+                <input type="radio" id="week-color-red" name="week-color" value="red" checked>
+                <label for="week-color-red">Ưu tiên 1 (Đỏ)</label>
+                <input type="radio" id="week-color-blue" name="week-color" value="blue">
+                <label for="week-color-blue">Ưu tiên 2 (Xanh đậm)</label>
+                <input type="radio" id="week-color-yellow" name="week-color" value="yellow">
+                <label for="week-color-yellow">Ưu tiên 3 (Vàng)</label>
+            </div>
+            <button onclick="addWeekTask()">Thêm công việc</button>
+            <button onclick="saveWeekData()">Lưu dữ liệu</button>
+            <button onclick="showWeekListPage()">Quay lại Danh sách</button>
+            <button onclick="exportWeekToPDF()">Tải PDF</button>
+            <button onclick="sendWeekEmail()">Gởi email</button>
+            <div class="schedule-container">
+                <table id="weekSchedule">
                     <tr>
                         <th>Công việc<div class="resize-handle"></div></th>
                         <th>Thứ 2<div class="resize-handle"></div></th>
@@ -183,8 +247,8 @@
                         <th>Thứ 4<div class="resize-handle"></div></th>
                         <th>Thứ 5<div class="resize-handle"></div></th>
                         <th>Thứ 6<div class="resize-handle"></div></th>
-                        <th>Kết quả mong đợi<div class="resize-handle"></div></th>
-                        <th>Hoàn thành<div class="resize-handle"></div></th>
+                        <th>Nêu phân tích/ kết quả đạt<div class="resize-handle"></div></th>
+                        <th>Xác nhận hoàn thành<div class="resize-handle"></div></th>
                         <th>Xóa</th>
                     </tr>
                 </table>
@@ -193,35 +257,66 @@
     </div>
 
     <script>
-        let currentPlanName = 'default';
+        let currentMonthPlanName = 'default';
+        let currentWeekPlanName = 'default';
         let currentCell = null;
         let pdfBlob = null;
 
         function showHomePage() {
+            hideAllPages();
             document.getElementById('homePage').style.display = 'block';
-            document.getElementById('planPage').style.display = 'none';
-            loadPlans();
         }
 
-        function showPlanPage(planName) {
-            document.getElementById('homePage').style.display = 'none';
-            document.getElementById('planPage').style.display = 'block';
-            currentPlanName = planName;
+        function showMonthListPage() {
+            hideAllPages();
+            document.getElementById('monthListPage').style.display = 'block';
+            loadMonthPlans();
+        }
+
+        function showWeekListPage() {
+            hideAllPages();
+            document.getElementById('weekListPage').style.display = 'block';
+            loadWeekPlans();
+        }
+
+        function showMonthPlanPage(planName) {
+            hideAllPages();
+            document.getElementById('monthPlanPage').style.display = 'block';
+            currentMonthPlanName = planName;
             if (planName !== 'new') {
-                loadData(planName);
+                loadMonthData(planName);
             } else {
-                clearForm();
+                clearMonthForm();
             }
         }
 
-        function loadPlans() {
-            const planList = document.getElementById('planList');
+        function showWeekPlanPage(planName) {
+            hideAllPages();
+            document.getElementById('weekPlanPage').style.display = 'block';
+            currentWeekPlanName = planName;
+            if (planName !== 'new') {
+                loadWeekData(planName);
+            } else {
+                clearWeekForm();
+            }
+        }
+
+        function hideAllPages() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('monthListPage').style.display = 'none';
+            document.getElementById('weekListPage').style.display = 'none';
+            document.getElementById('monthPlanPage').style.display = 'none';
+            document.getElementById('weekPlanPage').style.display = 'none';
+        }
+
+        function loadMonthPlans() {
+            const planList = document.getElementById('monthPlanList');
             while (planList.rows.length > 1) {
                 planList.deleteRow(1);
             }
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (key.startsWith('plan_')) {
+                if (key.startsWith('month_plan_')) {
                     const planData = JSON.parse(localStorage.getItem(key));
                     const row = planList.insertRow(-1);
                     row.innerHTML = `
@@ -229,23 +324,78 @@
                         <td>${planData.department}</td>
                         <td>${planData.date}</td>
                         <td>
-                            <button onclick="showPlanPage('${key}')">Xem</button>
-                            <button onclick="deletePlan('${key}')">Xóa</button>
+                            <button onclick="showMonthPlanPage('${key}')">Xem</button>
+                            <button onclick="deleteMonthPlan('${key}')">Xóa</button>
                         </td>
                     `;
                 }
             }
         }
 
-        function deletePlan(key) {
-            if (confirm('Bạn có chắc chắn muốn xóa kế hoạch này?')) {
-                localStorage.removeItem(key);
-                loadPlans();
+        function loadWeekPlans() {
+            const planList = document.getElementById('weekPlanList');
+            while (planList.rows.length > 1) {
+                planList.deleteRow(1);
+            }
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('week_plan_')) {
+                    const planData = JSON.parse(localStorage.getItem(key));
+                    const row = planList.insertRow(-1);
+                    row.innerHTML = `
+                        <td>${planData.name}</td>
+                        <td>${planData.department}</td>
+                        <td>${planData.date}</td>
+                        <td>${planData.weekNumber}</td>
+                        <td>
+                            <button onclick="showWeekPlanPage('${key}')">Xem</button>
+                            <button onclick="deleteWeekPlan('${key}')">Xóa</button>
+                        </td>
+                    `;
+                }
             }
         }
 
-        function addTask() {
-            const table = document.getElementById('schedule');
+        function deleteMonthPlan(key) {
+            if (confirm('Bạn có chắc chắn muốn xóa kế hoạch tháng này?')) {
+                localStorage.removeItem(key);
+                loadMonthPlans();
+            }
+        }
+
+        function deleteWeekPlan(key) {
+            if (confirm('Bạn có chắc chắn muốn xóa kế hoạch tuần này?')) {
+                localStorage.removeItem(key);
+                loadWeekPlans();
+            }
+        }
+
+        function addMonthTask() {
+            const table = document.getElementById('monthSchedule');
+            const newRow = table.insertRow(-1);
+            
+            const cellTask = newRow.insertCell(0);
+            cellTask.innerHTML = '<textarea class="task-input" placeholder="Nhập công việc"></textarea>';
+            
+            for (let i = 1; i <= 4; i++) {
+                const cell = newRow.insertCell(i);
+                cell.classList.add('task-cell');
+                cell.addEventListener('click', toggleMonthSelection);
+                cell.innerHTML += `<span class="note-icon" onclick="showWeekPlanPageFromMonth(event, ${i})">📝</span>`;
+            }
+            
+            const cellResult = newRow.insertCell(5);
+            cellResult.innerHTML = '<textarea class="result-input" placeholder="Nêu phân tích/ kết quả đạt"></textarea>';
+            
+            const cellComplete = newRow.insertCell(6);
+            cellComplete.innerHTML = '<input type="checkbox">';
+            
+            const cellDelete = newRow.insertCell(7);
+            cellDelete.innerHTML = '<button onclick="deleteTask(this)">Xóa</button>';
+        }
+
+        function addWeekTask() {
+            const table = document.getElementById('weekSchedule');
             const newRow = table.insertRow(-1);
             
             const cellTask = newRow.insertCell(0);
@@ -254,12 +404,12 @@
             for (let i = 1; i <= 5; i++) {
                 const cell = newRow.insertCell(i);
                 cell.classList.add('task-cell');
-                cell.addEventListener('click', toggleSelection);
+                cell.addEventListener('click', toggleWeekSelection);
                 cell.innerHTML += '<span class="note-icon" onclick="showNotePopup(event)">📝</span>';
             }
             
             const cellResult = newRow.insertCell(6);
-            cellResult.innerHTML = '<textarea class="result-input" placeholder="Kết quả mong đợi"></textarea>';
+            cellResult.innerHTML = '<textarea class="result-input" placeholder="Nêu phân tích/ kết quả đạt"></textarea>';
             
             const cellComplete = newRow.insertCell(7);
             cellComplete.innerHTML = '<input type="checkbox">';
@@ -268,10 +418,10 @@
             cellDelete.innerHTML = '<button onclick="deleteTask(this)">Xóa</button>';
         }
 
-        function toggleSelection(e) {
+        function toggleMonthSelection(e) {
             if (e.target.classList.contains('note-icon')) return;
             const cell = e.target.closest('.task-cell');
-            const color = document.querySelector('input[name="color"]:checked').value;
+            const color = document.querySelector('input[name="month-color"]:checked').value;
             if (cell.classList.contains(`selected-${color}`)) {
                 cell.classList.remove(`selected-${color}`);
             } else {
@@ -280,36 +430,80 @@
             }
         }
 
+        function toggleWeekSelection(e) {
+            if (e.target.classList.contains('note-icon')) return;
+            const cell = e.target.closest('.task-cell');
+            const color = document.querySelector('input[name="week-color"]:checked').value;
+            if (cell.classList.contains(`selected-${color}`)) {
+                cell.classList.remove(`selected-${color}`);
+            } else {
+                cell.classList.remove('selected-red', 'selected-blue', 'selected-yellow');
+                cell.classList.add(`selected-${color}`);
+            }
+        }
+
+        function showWeekPlanPageFromMonth(event, weekNumber) {
+            event.stopPropagation();
+            const newWeekPlanName = `new_${currentMonthPlanName}_week_${weekNumber}`;
+            showWeekPlanPage(newWeekPlanName);
+            document.getElementById('weekNumber').value = weekNumber;
+        }
+
         function deleteTask(button) {
             const row = button.parentNode.parentNode;
             row.parentNode.removeChild(row);
         }
 
-        function saveData() {
-            const data = getFormData();
-            const key = currentPlanName === 'new' ? `plan_${Date.now()}` : currentPlanName;
+        function saveMonthData() {
+            const data = getMonthFormData();
+            const key = currentMonthPlanName === 'new' ? `month_plan_${Date.now()}` : currentMonthPlanName;
             localStorage.setItem(key, JSON.stringify(data));
-            alert('Dữ liệu đã được lưu!');
-            showHomePage();
+            alert('Dữ liệu kế hoạch tháng đã được lưu!');
+            showMonthListPage();
         }
 
-        function loadData(key) {
+        function saveWeekData() {
+            const data = getWeekFormData();
+            const key = currentWeekPlanName.startsWith('new_') ? `week_plan_${Date.now()}` : currentWeekPlanName;
+            localStorage.setItem(key, JSON.stringify(data));
+            alert('Dữ liệu kế hoạch tuần đã được lưu!');
+            showWeekListPage();
+        }
+
+        function loadMonthData(key) {
             const data = JSON.parse(localStorage.getItem(key));
             if (data) {
-                setFormData(data);
+                setMonthFormData(data);
             } else {
-                alert('Không tìm thấy dữ liệu đã lưu!');
+                alert('Không tìm thấy dữ liệu kế hoạch tháng đã lưu!');
             }
         }
 
-        function exportToPDF() {
+        function loadWeekData(key) {
+            const data = JSON.parse(localStorage.getItem(key));
+            if (data) {
+                setWeekFormData(data);
+            } else {
+                alert('Không tìm thấy dữ liệu kế hoạch tuần đã lưu!');
+            }
+        }
+
+        function exportMonthToPDF() {
+            exportToPDF('monthPlanPage', 'ke_hoach_cong_viec_thang.pdf');
+        }
+
+        function exportWeekToPDF() {
+            exportToPDF('weekPlanPage', 'ke_hoach_cong_viec_tuan.pdf');
+        }
+
+        function exportToPDF(elementId, fileName) {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
             
             pdf.addFont('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf', 'Roboto', 'normal');
             pdf.setFont('Roboto');
 
-            const content = document.querySelector("#planPage");
+            const content = document.getElementById(elementId);
             
             html2canvas(content).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
@@ -322,40 +516,76 @@
                 const pdfUrl = URL.createObjectURL(pdfBlob);
                 const downloadLink = document.createElement('a');
                 downloadLink.href = pdfUrl;
-                downloadLink.download = "ke_hoach_cong_viec.pdf";
+                downloadLink.download = fileName;
                 downloadLink.click();
                 URL.revokeObjectURL(pdfUrl);
             });
         }
 
-       function sendEmail() {
-    const recipients = [
-        "baocaoideco@gmail.com",
-        "uyenhuongideco@gmail.com",
-        "minhkhanh.vt2023@ideco.com.vn",
-        "minhtriet.nt2023@ideco.com.vn",
-        "trantai@ideco.com.vn"
-    ];
-    const subject = encodeURIComponent("Kế hoạch công việc IDECO");
-    const body = encodeURIComponent("Kính gởi Ban giám đốc/ Quản lý bộ phận,\n\nĐính kèm là bảng kế hoạch công việc của tôi.\n\nTrân trọng,\n" + document.getElementById('name').value);
+        function sendMonthEmail() {
+            sendEmail("Kế hoạch công việc tháng IDECO", "monthName");
+        }
 
-    const mailtoLink = `mailto:${recipients.join(',')}?subject=${subject}&body=${body}`;
-    
-    // Tạo một thẻ a và kích hoạt sự kiện click
-    const link = document.createElement('a');
-    link.href = mailtoLink;
-    link.click();
-}
-        function getFormData() {
+        function sendWeekEmail() {
+            sendEmail(`Kế hoạch công việc tuần ${document.getElementById('weekNumber').value} IDECO`, "weekName");
+        }
+
+        function sendEmail(subject, nameElementId) {
+            const recipients = [
+                "baocaoideco@gmail.com",
+                "uyenhuongideco@gmail.com",
+                "minhkhanh.vt2023@ideco.com.vn",
+                "minhtriet.nt2023@ideco.com.vn",
+                "trantai@ideco.com.vn"
+            ];
+            const encodedSubject = encodeURIComponent(subject);
+            const body = encodeURIComponent(`Kính gởi Ban giám đốc/ Quản lý bộ phận,\n\nĐính kèm là bảng kế hoạch công việc của tôi.\n\nTrân trọng,\n${document.getElementById(nameElementId).value}`);
+
+            const mailtoLink = `mailto:${recipients.join(',')}?subject=${encodedSubject}&body=${body}`;
+            
+            const link = document.createElement('a');
+            link.href = mailtoLink;
+            link.click();
+        }
+
+        function getMonthFormData() {
             const data = {
-                name: document.getElementById('name').value,
-                department: document.getElementById('department').value,
-                date: document.getElementById('date').value,
-                goals: document.getElementById('goals').value,
+                name: document.getElementById('monthName').value,
+                department: document.getElementById('monthDepartment').value,
+                date: document.getElementById('monthDate').value,
+                goals: document.getElementById('monthGoals').value,
                 tasks: []
             };
 
-            const rows = document.getElementById('schedule').rows;
+            const rows = document.getElementById('monthSchedule').rows;
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const task = {
+                    description: row.cells[0].querySelector('textarea').value,
+                    weeks: [],
+                    result: row.cells[5].querySelector('textarea').value,
+                    completed: row.cells[6].querySelector('input').checked
+                };
+                for (let j = 1; j <= 4; j++) {
+                    task.weeks.push(row.cells[j].className.replace('task-cell ', ''));
+                }
+                data.tasks.push(task);
+            }
+
+            return data;
+        }
+
+        function getWeekFormData() {
+            const data = {
+                name: document.getElementById('weekName').value,
+                department: document.getElementById('weekDepartment').value,
+                date: document.getElementById('weekDate').value,
+                weekNumber: document.getElementById('weekNumber').value,
+                goals: document.getElementById('weekGoals').value,
+                tasks: []
+            };
+
+            const rows = document.getElementById('weekSchedule').rows;
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
                 const task = {
@@ -366,11 +596,7 @@
                     completed: row.cells[7].querySelector('input').checked
                 };
                 for (let j = 1; j <= 5; j++) {
-                    task.days.push(
-                        row.cells[j].classList.contains('selected-red') ? 'red' :
-                        (row.cells[j].classList.contains('selected-blue') ? 'blue' :
-                        (row.cells[j].classList.contains('selected-yellow') ? 'yellow' : ''))
-                    );
+                    task.days.push(row.cells[j].className.replace('task-cell ', ''));
                     task.notes.push(row.cells[j].getAttribute('data-note') || '');
                 }
                 data.tasks.push(task);
@@ -379,25 +605,47 @@
             return data;
         }
 
-        function setFormData(data) {
-            document.getElementById('name').value = data.name;
-            document.getElementById('department').value = data.department;
-            document.getElementById('date').value = data.date;
-            document.getElementById('goals').value = data.goals;
+        function setMonthFormData(data) {
+            document.getElementById('monthName').value = data.name;
+            document.getElementById('monthDepartment').value = data.department;
+            document.getElementById('monthDate').value = data.date;
+            document.getElementById('monthGoals').value = data.goals;
 
-            const table = document.getElementById('schedule');
+            const table = document.getElementById('monthSchedule');
             while (table.rows.length > 1) {
                 table.deleteRow(1);
             }
 
             data.tasks.forEach(task => {
-                addTask();
+                addMonthTask();
+                const newRow = table.rows[table.rows.length - 1];
+                newRow.cells[0].querySelector('textarea').value = task.description;
+                for (let i = 0; i < 4; i++) {
+                    newRow.cells[i+1].className = `task-cell ${task.weeks[i]}`;
+                }
+                newRow.cells[5].querySelector('textarea').value = task.result;
+                newRow.cells[6].querySelector('input').checked = task.completed;
+            });
+        }
+
+        function setWeekFormData(data) {
+            document.getElementById('weekName').value = data.name;
+            document.getElementById('weekDepartment').value = data.department;
+            document.getElementById('weekDate').value = data.date;
+            document.getElementById('weekNumber').value = data.weekNumber;
+            document.getElementById('weekGoals').value = data.goals;
+
+            const table = document.getElementById('weekSchedule');
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+
+            data.tasks.forEach(task => {
+                addWeekTask();
                 const newRow = table.rows[table.rows.length - 1];
                 newRow.cells[0].querySelector('textarea').value = task.description;
                 for (let i = 0; i < 5; i++) {
-                    if (task.days[i]) {
-                        newRow.cells[i+1].classList.add(`selected-${task.days[i]}`);
-                    }
+                    newRow.cells[i+1].className = `task-cell ${task.days[i]}`;
                     if (task.notes[i]) {
                         newRow.cells[i+1].setAttribute('data-note', task.notes[i]);
                     }
@@ -407,12 +655,24 @@
             });
         }
 
-        function clearForm() {
-            document.getElementById('name').value = '';
-            document.getElementById('department').value = '';
-            document.getElementById('date').value = '';
-            document.getElementById('goals').value = '';
-            const table = document.getElementById('schedule');
+        function clearMonthForm() {
+            document.getElementById('monthName').value = '';
+            document.getElementById('monthDepartment').value = '';
+            document.getElementById('monthDate').value = '';
+            document.getElementById('monthGoals').value = '';
+            const table = document.getElementById('monthSchedule');
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+        }
+
+        function clearWeekForm() {
+            document.getElementById('weekName').value = '';
+            document.getElementById('weekDepartment').value = '';
+            document.getElementById('weekDate').value = '';
+            document.getElementById('weekNumber').value = '';
+            document.getElementById('weekGoals').value = '';
+            const table = document.getElementById('weekSchedule');
             while (table.rows.length > 1) {
                 table.deleteRow(1);
             }
@@ -442,7 +702,7 @@
             popup.querySelector('textarea').value = note;
 
             const rect = currentCell.getBoundingClientRect();
-            popup.style.left = `${rect.left + window.pageXOffset}px`;
+     popup.style.left = `${rect.left + window.pageXOffset}px`;
             popup.style.top = `${rect.bottom + window.pageYOffset}px`;
             popup.style.display = 'block';
         }
@@ -486,7 +746,10 @@
             currentHeader = null;
         });
 
-        window.onload = showHomePage;
+        // Initialize the application
+        window.onload = function() {
+            showHomePage();
+        };
     </script>
 </body>
 </html>
